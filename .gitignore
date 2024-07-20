@@ -1,0 +1,7 @@
+node_modules
+
+data.json
+errors.json
+failedToFind.json
+
+.env
