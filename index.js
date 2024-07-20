@@ -51,9 +51,14 @@ const findExamCardIds = async (PIN, testId) => {
     .andWhere("t.id", testId);
 };
 
-const updateTest = async (trx, ball, id) => {
+const updateTest = async (trx, time, ball, id) => {
   await trx("pers_tests")
-    .update({ test_ball_correct: ball, status: "2", minuts_spent: 40 })
+    .update({
+      test_ball_correct: ball,
+      status: "2",
+      minuts_spent: 40,
+      end_time: time,
+    })
     .where("id", id);
 };
 
@@ -74,7 +79,17 @@ for (const person of data) {
         console.log(`Test: ${test.name}`);
 
         if (testObj && testObj.status !== 2) {
-          await updateTest(trx, test.ball, testObj.id);
+          const time = new Date(
+            new Date(testObj.start_time).getTime() + 30 * 60000
+          )
+            .toLocaleString("ru-RU", "Europe/Moscow")
+            .split(",");
+
+          let newTime = `${time[0].split(".").reverse().join("-")}${
+            time[1]
+          }.000000`;
+
+          await updateTest(trx, newTime, test.ball, testObj.id);
           console.log(`Test updated`);
 
           const examCards = await findExamCardIds(person.PIN, testObj.test_id);
